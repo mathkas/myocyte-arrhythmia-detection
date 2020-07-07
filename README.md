@@ -1,5 +1,11 @@
 # myocyte-arrhythmia-detection
 
-This application allows to detect arrhythmia in cardial muscle cells of mice. 
+This application allows the detection of arrhythmic sections in isolated heart muscle cells of mice.
 
-See ArrhythmiaDetection.py for an example.
+It can be executed with ArrhythmiaDetection.py or the following code:
+```bash
+import DetektBaseGui as detbg
+de = detbg.DetektBaseGui
+de.start()
+```
+Example measurements and according arrhythmic sections can be found in testdata directory. 
