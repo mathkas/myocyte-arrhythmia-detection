@@ -3,7 +3,7 @@
 This application allows the detection of arrhythmic sections in isolated heart muscle cells of mice.
 
 It can be executed with ArrhythmiaDetection.py or the following code:
-```bash
+```python
 import DetektBaseGui as detbg
 de = detbg.DetektBaseGui
 de.start()
