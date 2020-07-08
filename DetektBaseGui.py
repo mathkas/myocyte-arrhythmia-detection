@@ -10,10 +10,7 @@ from pyforms.controls import ControlTextArea
 from pyforms.controls import ControlText
 from pyforms.controls import ControlNumber
 from pyforms.controls import ControlCheckBox
-#from pyforms.controls import ControlCombo
 
-#import pyforms.basewidget as pfb
-#import pyforms.controls as pfc
 import DetektBase as det
 
 
@@ -28,8 +25,7 @@ class DetektBaseGui(BaseWidget):
         self.set_margin(10)
         
         self.detect = det.DetektBase()
-        
-        #Definition of the forms fields
+
         self._inputDir  = ControlFile('Data file')
         self._runButton  = ControlButton('Run')
         self._label = ControlLabel()
@@ -59,10 +55,6 @@ class DetektBaseGui(BaseWidget):
         
         self._dataHertz = ControlNumber('Herz')
         self._dataHertz.max = 10000
-        
-        #self._analysisType = ControlCombo("Analysis Type")
-        #self._analysisType.addItem("In Parts", "IP")
-        #self._analysisType.addItem("Constant", "CS")
     
         self._analyseInSeconds = ControlNumber('Analyse in parts [sec]')
         self._analyseInSeconds.max = 10000000
@@ -85,10 +77,6 @@ class DetektBaseGui(BaseWidget):
         self._maxDistanceBetweenPeaksMarksSec.decimals = 2
         self._maxDistanceBetweenPeaksMarksSec.steps = 0.05
         
-        
-        
-        #self._distanceCalculationPercentile = ControlNumber('Distance Percentile')        
-        #self._distanceCalculationRange = ControlNumber('Distance Range')        
         self._plotWithmarker = ControlCheckBox('plot marker')
         self._plotWithArrythmiaSections = ControlCheckBox('plot arrythmic sections')
         self._plotWithPeaks = ControlCheckBox('plot peaks')
@@ -97,18 +85,11 @@ class DetektBaseGui(BaseWidget):
         self._runButton.value       = self.__runButtonEvent
         self._storeSummaryButton.value       = self.__storeSummaryButtonEvent
 
-        #Define the organization of the Form Controls
-    
-        
         self._formset = [
             ('_inputDir'),
             ((
              '===== Input Data =====', '=',
              '_dataHertz', '=',
-             #'_inputXCol', '=',
-             #'_inputYCol', '=',
-             #'_inputMarkXCol', '=',
-             #'_inputMarkTypeCol', '=',
              '_inputMarkTypeContentCol', '=',
              '_inputMarkTimeDiffCol', '=',
              ' ', '=',
@@ -122,8 +103,6 @@ class DetektBaseGui(BaseWidget):
              "_minProminence", "=",
              "_minDistanceBetweenPeaksSec", '=',
              "_maxDistanceBetweenPeaksMarksSec", "=",
-             #"_distanceCalculationPercentile",'=',
-             #"_distanceCalculationRange",'=',
              '_findMinima', '=',
              "_plotWithPeaks", '=',
              "_plotWithArrythmiaSections", '=',
@@ -132,9 +111,7 @@ class DetektBaseGui(BaseWidget):
              ' ', '=',
              
              '_runButton', '='
-             #,'_label'
              ),
-            #'||',
              {
                  "1. Plot": ['_plotField'], 
                  "2. Phase summary": ['_resultText',"=",("_storeSummaryButton","_storeSummaryLabel")],
@@ -171,8 +148,6 @@ class DetektBaseGui(BaseWidget):
         
         self._maxDistanceBetweenPeaksMarksSec.value = self.detect.maxDistanceBetweenPeaksMarksSec
         
-        #self._distanceCalculationPercentile.value = self.detect.distanceCalculationPercentile
-        #self._distanceCalculationRange.value = self.detect.distanceCalculationRange 
         self._plotWithmarker.value = self.detect.plotWithmarker
         self._plotWithArrythmiaSections.value = self.detect.plotWithArrythmiaSections
         self._plotWithPeaks.value = self.detect.plotWithPeaks
@@ -194,8 +169,6 @@ class DetektBaseGui(BaseWidget):
         self.detect.minDistanceBetweenPeaksSec = self._minDistanceBetweenPeaksSec.value
         self.detect.minProminence = self._minProminence.value
         self.detect.maxDistanceBetweenPeaksMarksSec = self._maxDistanceBetweenPeaksMarksSec.value
-        #self.detect.distanceCalculationPercentile = self._distanceCalculationPercentile.value
-        #self.detect.distanceCalculationRange  = self._distanceCalculationRange.value
         self.detect.plotWithmarker = self._plotWithmarker.value
         self.detect.plotWithArrythmiaSections = self._plotWithArrythmiaSections.value
         self.detect.plotWithPeaks = self._plotWithPeaks.value
@@ -212,14 +185,10 @@ class DetektBaseGui(BaseWidget):
         self.detect.plotWithArrythmiaSections = False
         self.detect.plotWithmarker = False
         self.detect.plotGui(figure)
-        #axes = figure.add_subplot(111)
-        #axes.scatter(self.X, self.Y)
 
     def __plotdata(self, figure):
         
         self.detect.plotGui(figure)
-        #axes = figure.add_subplot(111)
-        #axes.scatter(self.X, self.Y)
 
     def __storeSummaryButtonEvent(self):
         file = self.detect.storeSummary()
@@ -231,9 +200,6 @@ class DetektBaseGui(BaseWidget):
         self.setDetectValues()
         
         self.detect.calcPeaks()
-        #self.detect.calcPeaksConstDist()
-        
-        #self.detect.calcPeaksConstPromWidth()
         
         self.detect.calcArrhythmia()
 

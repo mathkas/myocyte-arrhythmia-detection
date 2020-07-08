@@ -1,10 +1,6 @@
 # -*- coding: utf-8 -*-
 
-
-#import peaks as pk
 import matplotlib.pyplot as plt
-#from scipy.misc import electrocardiogram
-#from scipy.signal import find_peaks
 import scipy.signal as sig
 import numpy as np
 import statistics as stat
@@ -25,8 +21,6 @@ class DetektBase:
         self.findMinima = True
         self.prominenceCalculationPercentile = 96
         self.prominenceCalculationToMedian = False
-        #self.distanceCalculationPercentile = 95
-        #self.distanceCalculationRange = 20
         self.prominenceAutoAdjust = True
         self.minDistanceBetweenPeaksSec = 0.02
         self.maxDistanceBetweenPeaksMarksSec = 0.2
@@ -66,7 +60,6 @@ class DetektBase:
         self.curv.readin()
         self.curv.setcurvecols(self.inputXCol,self.inputYCol);
         self.curv.setmarkcols(self.inputMarkXCol,self.inputMarkTypeCol,self.inputMarkTypeContentCol, self.inputMarkTimeDiffCol);
-        #self.curv.calcfilter()
         self.marks = self.curv.marks()
 
         self.x = self.curv.thedata["x"]
@@ -97,7 +90,6 @@ class DetektBase:
         
 
     def zahldiff(self, a,b):
-        #print (str(a) + " " + str(b))
         difference = a-b;
         if (difference<0):
             difference *= -1;
@@ -105,8 +97,6 @@ class DetektBase:
         
     def getCalcY(self):
         y = np.array(self.y)
-        #y = y.astype(np.int64)
-        #plt.plot(y)
         if self.findMinima:
             y = y * -1
             if min(y) < 0:
@@ -116,8 +106,6 @@ class DetektBase:
     
     
     def calcPeaksConst (self, theProm=None, theWidth=None, theDist=None, theThreas=None):  
-        # self = detect
-
         y = self.getCalcY()        
         peaks3, _ = sig.find_peaks(y, prominence=theProm, width=theWidth, distance=theDist, threshold=theThreas)
         self.peaklist = peaks3
@@ -128,15 +116,12 @@ class DetektBase:
     
     
     def calcPeaks (self):  
-        # self = detect
-
         y = self.getCalcY()        
             
        
         plist = np.empty((0))
         i = 0
         lastprom = 0
-        #partlen = 10000
         partlen = int(self.hertz * self.analyseInSeconds)
         partborder = int(self.hertz * self.analyseBorderInSeconds)
         
@@ -152,14 +137,8 @@ class DetektBase:
 
             sy = y[start:end]
             mean = stat.mean(sy)
-            perc99 = np.percentile(sy,99)
-            perc98 = np.percentile(sy,98)
-            perc75 = np.percentile(sy,75)
             perc50 = np.percentile(sy,50)
             
-            prom99mean = self.zahldiff(perc99, mean)
-            prom9950 = self.zahldiff(perc99, perc50)
-            prom9850 = self.zahldiff(perc98, perc50)
             
             perc = np.percentile(sy,self.prominenceCalculationPercentile)
             
@@ -171,7 +150,6 @@ class DetektBase:
             
             
             prom = self.zahldiff(perc, base)
-            adjustedProm = 0
             if self.prominenceAutoAdjust:
                 percAutoI = -3
                 bestprom = prom
@@ -182,30 +160,17 @@ class DetektBase:
                     
                     if self.zahldiff(lastprom, promAuto ) < self.zahldiff(lastprom, bestprom):
                         bestprom = promAuto
-                        adjustedProm = percAutoI
                     
                     percAutoI = percAutoI + 1
                     
                 prom = bestprom
             
-            
-                
-                
-            
-            #print ("FIND1, adjustedProm:"  + str(adjustedProm) + "\t perc:" +str(round(perc,3))  + " \t- base:" +str(round(base,3)))
-            #print ("       mean&perc(50,75,98,99):"+ str(round(mean,3)) + ","+str(round(perc50,3))+ "," + str(round(perc75,3))+ ","+ str(round(perc98,3))+","+ str(round(perc99,3))+ " \t prom(prom,99mean,9950,9850):"+str(round(prom,3)) + ","+str(round(prom99mean,3))+","+str(round(prom9950,3))+","+str(round(prom9850,3))+ " \t- perc:" +str(round(perc,3)))
-            
-            
-            
+
             if len(self.partsProminence) > 0 and prom < np.mean(self.partsProminence) *0.7:
                 prom = np.mean(self.partsProminence) * 0.7
               
-                
-                
             self.partsProminence.append(prom)
             sp, _ = sig.find_peaks(sy, prominence=prom)
-            
-           
             
             
             self.secondCalc = True
@@ -268,14 +233,11 @@ class DetektBase:
             tm = self.marks.loc[tmi]
             tmfi = tmi+1
             tmf = self.marks.loc[tmfi]
-            #mFollowedPeaks = [(plist[peaki]) for peaki in range(0,len(plist)-1) if plist[peaki] >= tm.markx and plist[peaki] < tmf.markx]
             
             mFollowedPeaks = peaks[(peaks >= tm.markx) & (peaks <tmf.markx)]
         
-            #mFollowedPeaks = [(plist[peaki]) for peaki in range(0,len(plist)-1) if plist[peaki] >= tm.markx and plist[peaki] < tmf.markx]
             markAndPeaks.append([tm.markx,mFollowedPeaks])
             peakn = len(mFollowedPeaks)
-            peakNOK1 = peakn != 1
             peakNOK2 = peakn != 1 or (peakn == 1 and abs(mFollowedPeaks[0] - tm.markx) >=self.maxDistanceBetweenPeaksMarksSec)
             if(peakNOK2):
                 if lastfI < 0:
@@ -390,14 +352,9 @@ class DetektBase:
         if self.plotWithPeaks :
             fig.plot(x[self.peaklist], y[self.peaklist], marker='o', markersize=3, linestyle='', color='k')
 
-        
-        #plt.plot(subp , subpy, linestyle='-')
         if self.plotCalcbasisIndex:    
             if self.plotWithmarkerByX:
-                #xplist = marks.markx.tolist()
-                #yplist = [1.6]* len(marks.markx)
                 for xc in self.marks.xindex:           
-                    #fig.vlines(xc,min(y) , max(y), color='y',linewidth=0.5)
                     fig.plot([xc,xc],[min(y),max(y)],color='y',marker='', linewidth=0.5)
                    
             if  self.plotWithArrythmiaSectionsByX:
@@ -408,8 +365,6 @@ class DetektBase:
         
         else:
             if self.plotWithmarker:
-                #xplist = marks.markx.tolist()
-                #yplist = [1.6]* len(marks.markx)
                 for xc in self.marks.markx:           
                     fig.plot([xc,xc],[min(y),max(y)],color='y',marker='', linewidth=0.5)
             
@@ -432,7 +387,6 @@ class DetektBase:
 
 
     def getPartsProminenceSummary(self, sep="\t"):
-        # self = detect; sep="\t"
         result = ""
         for i in self.partsProminence:
             result += str(i) + "\n"
@@ -440,7 +394,6 @@ class DetektBase:
         return result
 
     def getProminenceSummary(self, sep="\t"):
-        # self = detect; sep="\t"
         result = ""
         for i in self.peakProminence:
             result += str(i) + "\n"
@@ -449,7 +402,6 @@ class DetektBase:
 
     
     def getPeakSummary(self, sep="\t"):
-        # self = detect; sep="\t"
         result = ""
         for i in self.peaklist:
             result += str(i) + sep + str(self.x[i]) + "\n"
@@ -458,7 +410,6 @@ class DetektBase:
     
     
     def getMarkerSummary(self, sep="\t"):
-        # self = detect; sep="\t"
         result = ""
         for i in range(0,self.marks['markx'].size):
             result += str(self.marks['markx'][i]) + sep + str(self.marks['markdesc'][i]) + sep + str(self.marks['xindex'][i]) + sep + "\n"
@@ -478,7 +429,6 @@ class DetektBase:
                  tm=r[0]
                  tmf=r[1]
                  mFollowedPeaks = self.peaklist[(self.x[self.peaklist] >= tm) & (self.x[self.peaklist] <tmf)]
-                 concpeaks = ', '.join(str(x) for x in self.x[mFollowedPeaks])                 
                  result += str(str(tm) +sep+ str(tmf) +sep+ str(mdist )+sep+ str(len(mFollowedPeaks)) + sep+ str(len(mFollowedPeaks) - mdist)+ sep+ str(r[5])+ sep+str(r[6])+sep+str(r[7])+sep+str(r[8])+sep+str(r[9]) +"\n")
                 
              return result
@@ -486,31 +436,20 @@ class DetektBase:
             
         
     def plot(self):
-        # self = detect
-        
         y = self.y
         if self.plotCalcbasis:
             y = self.getCalcY()   
         
         fig = plt.figure(figsize=(20,8))      
-        #plt.rcParams["figure.figsize"] = (10,7)
-        #plt.figure(figsize=(5,5))
         plt.plot( self.x,y, linestyle='-')
-        #plt.plot(subp , subpy, linestyle='-')
         plt.plot(self.x[self.peaklist], y[self.peaklist], marker='o', markersize=3, linestyle='', color='k')
-        #if withrange:
-        #    plt.plot(msubl.x, msubl.y, marker='>', markersize=self.markersize, linestyle='', color='gray')
-        #    plt.plot(msubr.x, msubr.y, marker='<', markersize=self.markersize, linestyle='', color='gray')
         if self.plotWithmarker:
-            #xplist = marks.markx.tolist()
-            #yplist = [1.6]* len(marks.markx)
             for xc in self.marks.markx:           
                 plt.plot([xc,xc],[min(y),max(y)],color='y',marker='o', linewidth=0.5)
         
         if self.arrhythmiaSections != None:
             for xc in self.arrhythmiaSections:           
                 plt.fill([xc[0],xc[0],xc[1],xc[1]], [min(y),max(y),max(y),min(y)], 'b', alpha=0.2, edgecolor='r')
-                #plt.plot([xc[0],xc[1]],[min(suby),max(suby)],color='y',marker='o',linewidth=0.5)
             
         
         if self.plotTofile:

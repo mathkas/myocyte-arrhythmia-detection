@@ -1,9 +1,6 @@
 
 import pandas as pd
 import numpy as np
-#import os
-
-import scipy.signal
 
 class Curve():
     
@@ -29,16 +26,6 @@ class Curve():
         self.thedata.rename(columns = {y:'y'}, inplace = True)
         self.cntPerSec = len(self.thedata.loc[ self.thedata['x'] < (self.thedata['x'][0]+0.1),])
         
-    def calcfilter(self):
-        # self = curv
-        b,a = scipy.signal.bessel(4, 100, 'low', analog=True)
-        w, h = scipy.signal.freqs(b, a)
-        y = scipy.signal.lfilter(b, a, self.thedata[['y']].values)
-        self.thedata[['y']] = y
-        
-
-        
-    # markx='Mark Time'; markdesc='Marks'; markdescregex='.*Pacer.*'; markdiffmin=0.01
     def setmarkcols(self, markx, markdesc, markdescregex, markdiffmin=0.0):
         self.thedata.rename(columns = {markx:'markx'}, inplace = True)
         self.thedata.rename(columns = {markdesc:'markdesc'}, inplace = True)
@@ -57,7 +44,6 @@ class Curve():
         self.xstart = xstart
         self.xend = xend
 
-    # timestart = selfromtime; timeend= seluntiltime
     def setSubsetByTime(self, timestart, timeend):
         tmp = self.thedata.loc[(self.thedata.x >= timestart) & (self.thedata.x <= timeend) , ].index.tolist()
         self.xstart = tmp[0]
