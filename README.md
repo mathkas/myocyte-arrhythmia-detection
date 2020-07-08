@@ -1,6 +1,6 @@
 # myocyte-arrhythmia-detection
 
-This application allows the detection of arrhythmic sections in isolated heart muscle cells of mice.
+This application allows to detect arrhythmic sections in measurements on isolated heart muscle cells of mice.
 
 It can be executed with ArrhythmiaDetection.py or the following code:
 ```python
